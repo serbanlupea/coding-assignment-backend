@@ -45,7 +45,14 @@ describe('Tests for bank account class', () => {
     });
 
     it('should withdraw the specified amount and update the current balance', () => {
-
+        const withdrawAmount = 5;
+        
+        // Act
+        bankAccount.withdraw(5);
+        
+        const bankAccountBalance = bankAccount.checkBalance();
+        // Assert
+        expect(bankAccountBalance).toBe(initialBalance-5);
     });
 
     //#endregion
@@ -53,11 +60,21 @@ describe('Tests for bank account class', () => {
     //#region Deposit
 
     it('should throw a "Deposit amount has to be greater than 0" error!', () => {
-
+        expect(() => {
+            bankAccount.deposit(-1)
+        }).toThrow('Deposit amount has to be greater than 0!');
     });
 
     it('should update the account balance with the specified sum!', () => {
-
+        const depositAmount = 5;
+        
+        // Act
+        bankAccount.deposit(5);
+        
+        const bankAccountBalance = bankAccount.checkBalance();
+        
+        // Assert
+        expect(bankAccountBalance).toBe(initialBalance+5);
     });
 
     //#endregion
@@ -75,7 +92,7 @@ describe('Tests for bank account class', () => {
 
         jest.spyOn(BankAccount.prototype, 'deposit').mockImplementationOnce(() => {
             destinationAccount['balance'] = transferAmount;
-        })
+        });
 
         // Act
         bankAccount.transfer(transferAmount, destinationAccount);
@@ -86,6 +103,27 @@ describe('Tests for bank account class', () => {
     });
 
     it('should transfer the specified sum back to the source account if the deposit operation fails!', () => {
+        // Arrange
+        const destinationAccount: BankAccount = new BankAccount('DestinationAccount');
+        const transferAmount = 100;
+
+        jest.spyOn(BankAccount.prototype, 'withdraw').mockImplementationOnce(() => {
+            bankAccount['balance'] -= transferAmount;
+        });
+
+        jest.spyOn(BankAccount.prototype, 'deposit').mockImplementationOnce(() => {
+            throw new Error('Deposit failed!')
+        });
+
+        jest.spyOn(BankAccount.prototype, 'deposit').mockImplementationOnce(() => {
+            bankAccount['balance'] += transferAmount;
+        });
+        
+        
+        bankAccount.transfer(transferAmount, destinationAccount);
+        
+        expect(bankAccount['balance']).toBe(initialBalance);
+        expect(destinationAccount['balance']).toBe(0);
 
     });
     //#endregion
