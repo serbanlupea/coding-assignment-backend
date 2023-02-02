@@ -11,7 +11,7 @@ export class BankAccount {
     }
 
     withdraw(withdrawAmount: number) {
-        if(withdrawAmount < 0) {
+        if(withdrawAmount <= 0) {
             throw new Error('Withdraw amount has to be greater than 0!');
         }
 
